@@ -1,0 +1,9 @@
+*           text=auto
+*.java      text diff=java
+*.html      text diff=html
+*.jsp
+*.css       text
+*.js        text
+*.sql       text
+
+*.dat binary
