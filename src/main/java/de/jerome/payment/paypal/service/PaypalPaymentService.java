@@ -5,7 +5,6 @@ import com.paypal.base.rest.APIContext;
 import com.paypal.base.rest.PayPalRESTException;
 import de.jerome.payment.PaymentMethod;
 import de.jerome.payment.paypal.PaypalPaymentIntent;
-import de.jerome.payment.paypal.config.PaypalConfiguration;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -17,7 +16,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Service
-@ConditionalOnClass(PaypalConfiguration.class)
+@ConditionalOnClass(APIContext.class)
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public final class PaypalPaymentService {
   private final APIContext apiContext;

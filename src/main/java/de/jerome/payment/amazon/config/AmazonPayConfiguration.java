@@ -6,12 +6,14 @@ import com.amazon.pay.api.ProxySettings;
 import com.amazon.pay.api.exceptions.AmazonPayClientException;
 import com.amazon.pay.api.types.Environment;
 import com.amazon.pay.api.types.Region;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.lang.Nullable;
 
+@Slf4j
 @Configuration
 @ConditionalOnClass(PayConfiguration.class)
 public class AmazonPayConfiguration {
@@ -41,14 +43,15 @@ public class AmazonPayConfiguration {
   @Bean
   @Nullable
   public ProxySettings proxySettings() {
-    return !this.proxyEnabled ? null : new ProxySettings()
+    return this.proxyEnabled ? new ProxySettings()
       .setProxyHost(this.proxyHost)
       .setProxyPort(this.proxyPort)
       .setProxyUser(this.proxyUsername)
-      .setProxyPassword(this.proxyPassword.toCharArray());
+      .setProxyPassword(this.proxyPassword != null ? this.proxyPassword.toCharArray() : new char[0]) : null;
   }
 
   @Bean
+  @Nullable
   public PayConfiguration payConfiguration(ProxySettings proxySettings) {
     try {
       var payConfiguration = new PayConfiguration()
@@ -61,16 +64,19 @@ public class AmazonPayConfiguration {
       }
       return payConfiguration;
     } catch (AmazonPayClientException e) {
-      throw new RuntimeException(e);
+      log.error("An error occurred while configuring Amazon Pay", e);
+      return null;
     }
   }
 
   @Bean
+  @Nullable
   public AmazonPayClient amazonPayClient(PayConfiguration payConfiguration) {
     try {
       return new AmazonPayClient(payConfiguration);
     } catch (AmazonPayClientException e) {
-      throw new RuntimeException(e);
+      log.error("An error occurred while creating the Amazon Pay client", e);
+      return null;
     }
   }
 }
